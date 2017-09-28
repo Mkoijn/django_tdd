@@ -1,3 +1,7 @@
 db.sqlite3
 geckodriver.log
 __pychache__
+db.sqlite3
+geckodriver/log
+__pychache__
+*.pyc
