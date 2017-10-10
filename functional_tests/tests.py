@@ -28,7 +28,7 @@ class NewVisitorTest(LiveServerTestCase):
 					raise e
 				time.sleep(0.5)
 
-	def test_can_start_a_list_and_retrieve_it_later(self):
+	def test_can_start_a_list_fro_one_user(self):
 		# Tom goes to check out a new online to-do app.
 		self.browser.get(self.live_server_url)
 
@@ -65,15 +65,46 @@ class NewVisitorTest(LiveServerTestCase):
 		self.wait_for_row_in_list_table('1: Buy socks')
 		self.wait_for_row_in_list_table('2: Put socks on')
 
-		# Tom wonders whether the site will remember her list. He sees
-		# that the site has generated a unique URL for him -- there is some
-    	# explanatory text to that effect.
-		self.fail('Finish the test!')
 
-    	# He visits that URL - her to-do list is still there.
+	def test_multiple_users_can_start_at_different_urls(self):
+		# Tom starts a new to-do list
+		self.browser.get(self.live_server_url)
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('Buy socks')
+		inputbox.send_keys(Keys.ENTER)
+		self.wait_for_row_in_list_table('1: Buy socks')
 
-		# Page updates again, with both items on list
+    	# He notices that his list has a unique URl.
+		tom_list_url = self.browser.current_url
+		self.assertRegex(tom_list_url, '/lists/.+')
 
-		# The site generates a unique URL for her
+		# Now Mary comes along.
+		## We use a new browser session to make sure that no
+		## information of Tom's is coming thru from cookies
+		self.browser.quit()
+		self.browser = webdriver.Firefox()
 
-		# He visits that URL - and list is there
+		# Mary visits home page. No sign of Tom's list.
+		self.browser.get(self.live_server_url)
+		page_text = self.browser.find_element_by_tag_name('body').text
+		self.assertNotIn('Buys socks', page_text)
+		self.assertNotIn('Put socks on', page_text)
+
+		# Mary starts new list
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('Buy milk')
+		inputbox.send_keys(Keys.ENTER)
+		self.wait_for_row_in_list_table('1: Buy milk')
+
+		# Mary gets her own URL
+		mary_list_url= self.browser.current_url
+		self.assertRegex(mary_list_url, '/lists/.+')
+		self.assertNotEqual(mary_list_url, tom_list_url)
+
+		# Again no trace of Tom's list
+		page_text = self.browser.find_element_by_tag_name('body').text
+		self.assertNotIn('Buys socks', page_text)
+		self.assertIn('Buy milk', page_text)
+
+
+		# They are both happy
