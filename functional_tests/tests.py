@@ -28,7 +28,7 @@ class NewVisitorTest(LiveServerTestCase):
 					raise e
 				time.sleep(0.5)
 
-	def test_can_start_a_list_fro_one_user(self):
+	def test_can_start_a_list_for_one_user(self):
 		# Tom goes to check out a new online to-do app.
 		self.browser.get(self.live_server_url)
 
@@ -62,8 +62,8 @@ class NewVisitorTest(LiveServerTestCase):
 		inputbox.send_keys(Keys.ENTER)
 
     	# The page updates again, and now shows both items on her list
-		self.wait_for_row_in_list_table('1: Buy socks')
 		self.wait_for_row_in_list_table('2: Put socks on')
+		self.wait_for_row_in_list_table('1: Buy socks')
 
 
 	def test_multiple_users_can_start_at_different_urls(self):
@@ -81,7 +81,7 @@ class NewVisitorTest(LiveServerTestCase):
 		# Now Mary comes along.
 		## We use a new browser session to make sure that no
 		## information of Tom's is coming thru from cookies
-		self.browser.quit()
+	    self.browser.quit()
 		self.browser = webdriver.Firefox()
 
 		# Mary visits home page. No sign of Tom's list.
